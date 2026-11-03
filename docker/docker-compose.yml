@@ -29,3 +29,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+  
+  sentinel-dashboard:
+    # build:
+      # context: ./sentinel          # 里面放 Dockerfile 和 sentinel-dashboard-1.8.8.jar
+      # 或者用社区镜像,二选一:
+    image: bladex/sentinel-dashboard
+    container_name: sentinel-dashboard
+    ports:
+      - "8858:8858"                # 左边是宿主机端口,右边是容器内端口
+    restart: unless-stopped
+
