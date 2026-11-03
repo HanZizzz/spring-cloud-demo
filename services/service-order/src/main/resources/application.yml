@@ -11,7 +11,7 @@ nacos-common: &nacos-common
 
 spring:
   profiles:
-    active: prod # 这里是对应的配置的id，在nacos中需要将id也设置成prod，而不是自动生成，否则使用id
+    active: dev # 这里是对应的配置的id，在nacos中需要将id也设置成prod，而不是自动生成，否则使用id
     include: feign
   application:
     name: service-order

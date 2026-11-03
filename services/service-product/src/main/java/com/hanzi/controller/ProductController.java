@@ -28,7 +28,7 @@ public class ProductController {
         String XToken = httpServletRequest.getHeader("X-Token");
         System.out.println("XToken = " + XToken);
         System.out.println("正在远程调用service-product...");
-        //        int i = 10 / 0;
+//        int i = 10 / 0;
         Product product = productService.getProductById(productId);
         return product;
     }
