@@ -1,5 +1,6 @@
 package com.hanzi.config;
 
+import feign.Retryer;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,5 +13,11 @@ public class OrderConfig {
     @LoadBalanced //基于注解式的负载均衡
     public RestTemplate restTemplate() {
         return new RestTemplate();
+    }
+
+    // 重试机制
+    @Bean
+    Retryer retryer() {
+        return new Retryer.Default();
     }
 }
