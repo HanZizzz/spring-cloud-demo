@@ -2,6 +2,7 @@ package com.hanzi.service.Impl;
 
 import com.hanzi.bean.Order;
 import com.hanzi.bean.Product;
+import com.hanzi.order.feign.ProductFeignClient;
 import com.hanzi.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,11 +116,35 @@ public class OrderServiceImpl implements OrderService {
     RestTemplate restTemplate;
     @Autowired
     LoadBalancerClient loadBalancerClient;
+    @Autowired
+    ProductFeignClient productFeignClient;
+
+//    @Override
+//    public Order createOrder(Long userId, Long productId) {
+//        //        Product product = this.getProductFromRemote(productId);
+//        //        Product product = this.getProductFromRemoteWithLoadBalance(productId);
+//        Product product = this.getProductFromRemoteWithLoadBalanceAnnotation(productId);
+//        Order order = new Order();
+//        order.setId(1L);
+//        // 总金额=价格*数量
+//        BigDecimal price = product.getPrice();//价格
+//        int num = product.getNum();//数量
+//        order.setTotalAmount(price.multiply(new BigDecimal(num)));//总价
+//        order.setUserId(userId);
+//        order.setNickName("张三");
+//        order.setAddress("火星");
+//        // 远程查询商品列表
+//        order.setProductList(Arrays.asList(product));
+//        return order;
+//    }
+
     @Override
     public Order createOrder(Long userId, Long productId) {
         //        Product product = this.getProductFromRemote(productId);
         //        Product product = this.getProductFromRemoteWithLoadBalance(productId);
-        Product product = this.getProductFromRemoteWithLoadBalanceAnnotation(productId);
+//        Product product = this.getProductFromRemoteWithLoadBalanceAnnotation(productId);
+        // 注解式远程调用客户端
+        Product product = productFeignClient.getProductById(productId);
         Order order = new Order();
         order.setId(1L);
         // 总金额=价格*数量
@@ -133,6 +158,8 @@ public class OrderServiceImpl implements OrderService {
         order.setProductList(Arrays.asList(product));
         return order;
     }
+
+
 
     //阶段三：于注解的负载均衡
     public Product getProductFromRemoteWithLoadBalanceAnnotation(Long productId) {

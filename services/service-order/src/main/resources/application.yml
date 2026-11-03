@@ -1,0 +1,65 @@
+server:
+  port: 8001
+
+# 1. 定义一个公共配置块 (使用 &nacos-common 定义锚点)
+nacos-common: &nacos-common
+  server-addr: 192.168.31.231:8848
+  namespace: prod
+#  namespace: 0f1eec1a-c33e-4d37-a4cd-3a6a5206f7f8 # 命名空间的id，实际上nacos是根据命名空间的id加载配置的，而不是名称
+  username: nacos
+  password: nacos
+
+spring:
+  profiles:
+    active: prod # 这里是对应的配置的id，在nacos中需要将id也设置成prod，而不是自动生成，否则使用id
+  application:
+    name: service-order
+  cloud:
+    nacos:
+      discovery:
+#        server-addr: 192.168.31.231:8848
+#        namespace: prod
+#        username: nacos
+#        password: nacos
+      <<: *nacos-common  # 2. 使用 *nacos-common 引用该配置块
+#      server-addr: 127.0.0.1:8848
+      server-addr: 192.168.31.231:8848
+      config:
+#        username: nacos
+#        password: nacos
+        <<: *nacos-common
+        import-check:
+          enabled: false
+        namespace: ${spring.profiles.active:public}
+
+---
+spring:
+  config:
+    import:
+      - nacos:common.properties?group=order
+      - nacos:database.properties?group=order
+    activate:
+      on-profile: dev
+logging:
+  level:
+    com.hanzi.order.feign: debug
+
+---
+spring:
+  config:
+    import:
+      - nacos:common.properties?group=order
+      - nacos:database.properties?group=order
+      - nacos:haha.properties?group=order
+    activate:
+      on-profile: test
+
+---
+spring:
+  config:
+    import:
+      - nacos:common.properties?group=order
+      - nacos:database.properties?group=order
+      - nacos:hehe.properties?group=order
+    activate:
+      on-profile: prod

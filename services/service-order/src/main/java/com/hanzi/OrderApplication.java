@@ -4,10 +4,12 @@ import com.alibaba.cloud.nacos.NacosConfigManager;
 import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.config.listener.Listener;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 
 import java.util.concurrent.Executor;
@@ -16,6 +18,7 @@ import java.util.concurrent.Executors;
 @Slf4j
 @SpringBootApplication
 @EnableDiscoveryClient
+@EnableFeignClients(value = "com.hanzi.order.feign")
 public class OrderApplication {
     public static void main(String[] args) {
         SpringApplication.run(OrderApplication.class, args);
@@ -31,7 +34,8 @@ public class OrderApplication {
 //            public void run(ApplicationArguments args) throws Exception {
 //
 //            }
-//        }
+//        };
+
         return args -> {
             //这个监听的服务和application.yml中naocs的配置中心有关
             ConfigService configService = nacosConfigManager.getConfigService();
