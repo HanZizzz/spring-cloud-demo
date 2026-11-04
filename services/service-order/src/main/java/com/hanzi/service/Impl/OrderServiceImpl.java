@@ -1,9 +1,12 @@
 package com.hanzi.service.Impl;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.hanzi.bean.Order;
 import com.hanzi.bean.Product;
 import com.hanzi.order.feign.ProductFeignClient;
 import com.hanzi.service.OrderService;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
@@ -116,7 +119,7 @@ public class OrderServiceImpl implements OrderService {
     RestTemplate restTemplate;
     @Autowired
     LoadBalancerClient loadBalancerClient;
-    @Autowired
+    @Resource
     ProductFeignClient productFeignClient;
 
 //    @Override
@@ -139,6 +142,11 @@ public class OrderServiceImpl implements OrderService {
 //    }
 
     @Override
+    @SentinelResource(value = "createOrder",
+//            blockHandler = "createOrderBlockHandler",
+            blockHandler = "createOrderFallback"
+//            fallback = "createOrderFallback"
+    )
     public Order createOrder(Long userId, Long productId) {
         //        Product product = this.getProductFromRemote(productId);
         //        Product product = this.getProductFromRemoteWithLoadBalance(productId);
@@ -159,7 +167,15 @@ public class OrderServiceImpl implements OrderService {
         return order;
     }
 
-
+    public Order createOrderFallback(Long userId, Long productId, BlockException e) {
+        Order order = new Order();
+        order.setId(0L);
+        order.setTotalAmount(new BigDecimal("0"));
+        order.setUserId(userId);
+        order.setNickName("未知用户");
+        order.setAddress("异常信息" + e.getClass());
+        return order;
+    }
 
     //阶段三：于注解的负载均衡
     public Product getProductFromRemoteWithLoadBalanceAnnotation(Long productId) {

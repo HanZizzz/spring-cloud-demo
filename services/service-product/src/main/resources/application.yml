@@ -1,0 +1,11 @@
+
+client: &client
+  client-ip: 192.168.31.197 # 当前服务的机器的ip
+
+spring:
+  cloud:
+    sentinel:
+      transport:
+        dashboard: 192.168.31.128:8858
+      <<: *client
+      eager: true

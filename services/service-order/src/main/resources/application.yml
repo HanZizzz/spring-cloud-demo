@@ -9,6 +9,9 @@ nacos-common: &nacos-common
   username: nacos
   password: nacos
 
+client: &client
+  client-ip: 192.168.31.197
+
 spring:
   profiles:
     active: dev # 这里是对应的配置的id，在nacos中需要将id也设置成prod，而不是自动生成，否则使用id
@@ -32,6 +35,11 @@ spring:
         import-check:
           enabled: false
         namespace: ${spring.profiles.active:public}
+    sentinel:
+      transport:
+        dashboard: 192.168.31.128:8858
+        <<: *client
+      eager: true
 
 ---
 spring:
