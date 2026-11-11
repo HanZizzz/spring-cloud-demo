@@ -9,4 +9,4 @@ spring:
         dashboard: 192.168.31.128:8858
       <<: *client
       eager: true
-      web-context-unify: false
+      web-context-unify: false #在sentinel中不共用同一个上下文
