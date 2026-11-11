@@ -14,6 +14,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 // ProductFeignClient加上回调实现
 @FeignClient(value = "service-product", fallback = ProductFeignClientFallback.class)
 public interface ProductFeignClient {
-    @GetMapping(value = "/productId/{id}")
+    @GetMapping(value = "/api/product/productId/{id}")
     public Product getProductById(@PathVariable("id") Long productId);
 }

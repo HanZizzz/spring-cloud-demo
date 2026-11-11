@@ -1,0 +1,20 @@
+client: &client
+  client-ip: 192.168.31.197 # 当前服务的机器的ip
+
+nacos-common: &nacos-common
+  server-addr: 192.168.31.128:8848
+  namespace: prod
+  username: nacos
+  password: nacos
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    nacos:
+      discovery:
+        <<: *nacos-common
+  profiles:
+    include: route
+server:
+  port: 80
