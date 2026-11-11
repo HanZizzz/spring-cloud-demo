@@ -25,7 +25,8 @@ services:
     restart: unless-stopped
     healthcheck:
 #      test: ["CMD", "curl", "-f", "http://localhost:8848/nacos/v1/ns/health"]
-      test: ["CMD", "curl", "-f", "http://localhost:8848/nacos/v1/console/health/readiness"]
+#      test: ["CMD", "curl", "-f", "http://localhost:8848/nacos/v1/console/health/readiness"]  # Nacos 3.x 已移除 v1, 返回 404, 容器会一直 unhealthy
+      test: ["CMD", "curl", "-f", "http://localhost:8848/nacos/v3/admin/core/state/readiness"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -38,5 +39,48 @@ services:
     container_name: sentinel-dashboard
     ports:
       - "8858:8858"                # 左边是宿主机端口,右边是容器内端口
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.4
+    container_name: mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_general_ci
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root}
+      - TZ=Asia/Shanghai
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+      # 只在 mysql-data 为空(首次启动)时执行顶层的 *.sql, 子目录 manual/ 里的业务库脚本不会被执行, 需要手动导入
+      - ./mysql-init:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+    healthcheck:
+      # 必须走 TCP(127.0.0.1): 初始化阶段的临时 mysqld 只监听 socket, 走 socket 会提前判定为健康
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  seata-server:
+    image: apache/seata-server:2.5.0
+    container_name: seata-server
+    depends_on:
+      nacos:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root}
+    ports:
+      - "8091:8091"                # TC 通信端口, 客户端直连 <宿主机IP>:8091
+    volumes:
+      - ./seata/application.yml:/seata-server/resources/application.yml:ro
+      # 镜像不带 MySQL 驱动, 需要放进 libs(classpath 是 libs/*)
+      # 下载: curl -o docker/seata/jdbc/mysql-connector-j-8.0.33.jar https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.0.33/mysql-connector-j-8.0.33.jar
+      - ./seata/jdbc/mysql-connector-j-8.0.33.jar:/seata-server/libs/mysql-connector-j-8.0.33.jar:ro
     restart: unless-stopped
 

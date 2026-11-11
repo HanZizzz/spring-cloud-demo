@@ -1,0 +1,39 @@
+server:
+  port: 8091
+spring:
+  application:
+    name: seata-server
+  main:
+    web-application-type: none
+logging:
+  config: classpath:logback-spring.xml
+  file:
+    path: ${log.home:${user.home}/logs/seata}
+
+seata:
+  config:
+    type: file
+  # apache/seata-server:2.5.0 镜像内置的 nacos-client 是 1.4.6, 只会调用 Nacos v1 接口,
+  # 而 Nacos 3.x 已移除 v1 naming 接口(POST /nacos/v1/ns/instance 返回 501), 无法注册,
+  # 所以这里用 file, 客户端通过 seata.service.grouplist 直连 <宿主机IP>:8091
+  registry:
+    type: file
+  store:
+    mode: db
+    db:
+      datasource: druid
+      db-type: mysql
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      # 容器之间用服务名 mysql 访问
+      url: jdbc:mysql://mysql:3306/seata?useSSL=false&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true
+      user: root
+      password: ${MYSQL_ROOT_PASSWORD:root}
+      min-conn: 10
+      max-conn: 100
+      global-table: global_table
+      branch-table: branch_table
+      lock-table: lock_table
+      distributed-lock-table: distributed_lock
+      vgroup-table: vgroup_table
+      query-limit: 1000
+      max-wait: 5000

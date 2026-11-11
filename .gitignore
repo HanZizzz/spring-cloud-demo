@@ -35,3 +35,5 @@ build/
 ### docker ###
 docker/nacos-data
 docker/nacos-logs
+docker/mysql-data
+docker/seata/jdbc/*.jar
