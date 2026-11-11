@@ -26,7 +26,8 @@
 		<module>services/service-order</module>
 		<module>services/service-product</module>
 		<module>model</module>
-	</modules>
+        <module>gateway</module>
+    </modules>
 	<scm>
 		<connection/>
 		<developerConnection/>
